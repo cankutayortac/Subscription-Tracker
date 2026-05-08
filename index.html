@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f5c5b" />
+    <title>Abonelik Takipçisi</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Uygulama menüsü">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">AT</div>
+          <div>
+            <p class="eyebrow">Mobil MVP</p>
+            <h1>Abonelik Takipçisi</h1>
+          </div>
+        </div>
+
+        <nav class="nav-tabs" aria-label="Sayfalar">
+          <button class="nav-tab active" data-view="dashboard" type="button">
+            <i data-lucide="layout-dashboard"></i>
+            Özet
+          </button>
+          <button class="nav-tab" data-view="subscriptions" type="button">
+            <i data-lucide="repeat"></i>
+            Abonelikler
+          </button>
+          <button class="nav-tab" data-view="settings" type="button">
+            <i data-lucide="settings"></i>
+            Ayarlar
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <p>Veriler bu cihazda saklanır.</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="todayLabel"></p>
+            <h2 id="viewTitle">Özet</h2>
+          </div>
+          <button class="primary-button" id="openAddDialog" type="button">
+            <i data-lucide="plus"></i>
+            Abonelik Ekle
+          </button>
+        </header>
+
+        <section class="view active" id="dashboardView" aria-labelledby="viewTitle">
+          <div class="stats-grid">
+            <article class="metric">
+              <span>Bu ay toplam</span>
+              <strong id="monthlyTotal">₺0</strong>
+            </article>
+            <article class="metric">
+              <span>Aktif abonelik</span>
+              <strong id="activeCount">0</strong>
+            </article>
+            <article class="metric">
+              <span>7 gün içinde</span>
+              <strong id="upcomingCount">0</strong>
+            </article>
+            <article class="metric">
+              <span>Yıllık tahmin</span>
+              <strong id="yearlyTotal">₺0</strong>
+            </article>
+          </div>
+
+          <div class="content-grid">
+            <section class="panel">
+              <div class="panel-heading">
+                <h3>Yaklaşan Ödemeler</h3>
+                <span id="nextPaymentBadge"></span>
+              </div>
+              <div class="timeline" id="upcomingList"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading">
+                <h3>Kategori Dağılımı</h3>
+              </div>
+              <div class="category-bars" id="categoryBreakdown"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="subscriptionsView" aria-label="Abonelikler">
+          <div class="toolbar">
+            <label class="search-field">
+              <i data-lucide="search"></i>
+              <input id="searchInput" type="search" placeholder="Abonelik ara" />
+            </label>
+            <select id="categoryFilter" aria-label="Kategori filtresi">
+              <option value="all">Tüm kategoriler</option>
+            </select>
+            <select id="statusFilter" aria-label="Durum filtresi">
+              <option value="active">Aktif</option>
+              <option value="all">Tümü</option>
+              <option value="paused">Pasif</option>
+            </select>
+          </div>
+          <div class="subscription-list" id="subscriptionList"></div>
+        </section>
+
+        <section class="view" id="settingsView" aria-label="Ayarlar">
+          <div class="settings-grid">
+            <section class="panel">
+              <div class="panel-heading">
+                <h3>Para Birimi</h3>
+              </div>
+              <div class="segmented" id="currencyButtons" role="group" aria-label="Para birimi">
+                <button type="button" data-currency="TRY">₺ TRY</button>
+                <button type="button" data-currency="USD">$ USD</button>
+                <button type="button" data-currency="EUR">€ EUR</button>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading">
+                <h3>Veri İşlemleri</h3>
+              </div>
+              <div class="data-actions">
+                <button class="secondary-button" id="exportJson" type="button">
+                  <i data-lucide="download"></i>
+                  JSON Dışa Aktar
+                </button>
+                <button class="secondary-button" id="exportCsv" type="button">
+                  <i data-lucide="table"></i>
+                  CSV Dışa Aktar
+                </button>
+                <label class="secondary-button file-button">
+                  <i data-lucide="upload"></i>
+                  JSON İçe Aktar
+                  <input id="importJson" type="file" accept="application/json" />
+                </label>
+              </div>
+            </section>
+
+            <section class="panel premium-panel">
+              <div class="panel-heading">
+                <h3>Premium Taslağı</h3>
+              </div>
+              <ul class="premium-list">
+                <li>Sınırsız cihaz yedekleme</li>
+                <li>PDF rapor</li>
+                <li>Ödeme günü bildirimi</li>
+                <li>Reklamsız kullanım</li>
+              </ul>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="subscriptionDialog">
+      <form method="dialog" id="subscriptionForm" class="dialog-form">
+        <div class="dialog-heading">
+          <h3 id="dialogTitle">Abonelik Ekle</h3>
+          <button class="icon-button" id="closeDialog" type="button" aria-label="Kapat">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <input type="hidden" id="subscriptionId" />
+
+        <label>
+          Abonelik adı
+          <input id="nameInput" required maxlength="40" placeholder="Netflix, Spotify, iCloud" />
+        </label>
+
+        <div class="form-row">
+          <label>
+            Tutar
+            <input id="priceInput" required min="0" step="0.01" type="number" placeholder="99.99" />
+          </label>
+          <label>
+            Döngü
+            <select id="cycleInput">
+              <option value="monthly">Aylık</option>
+              <option value="yearly">Yıllık</option>
+              <option value="weekly">Haftalık</option>
+              <option value="quarterly">3 Aylık</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label>
+            Kategori
+            <select id="categoryInput">
+              <option>Eğlence</option>
+              <option>İş</option>
+              <option>Bulut</option>
+              <option>Sağlık</option>
+              <option>Eğitim</option>
+              <option>Diğer</option>
+            </select>
+          </label>
+          <label>
+            Sonraki ödeme
+            <input id="nextDateInput" required type="date" />
+          </label>
+        </div>
+
+        <label>
+          Not
+          <textarea id="noteInput" rows="3" maxlength="140" placeholder="Aile paketi, yıllık indirim, iptal tarihi..."></textarea>
+        </label>
+
+        <label class="toggle-row">
+          <input id="activeInput" type="checkbox" checked />
+          Aktif abonelik
+        </label>
+
+        <div class="dialog-actions">
+          <button class="danger-button hidden" id="deleteSubscription" type="button">
+            <i data-lucide="trash-2"></i>
+            Sil
+          </button>
+          <div class="spacer"></div>
+          <button class="secondary-button" id="cancelDialog" type="button">Vazgeç</button>
+          <button class="primary-button" type="submit">Kaydet</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
